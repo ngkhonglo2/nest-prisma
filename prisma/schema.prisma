@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           Int              @id @default(autoincrement())
+  name         String           @unique
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  price        Float
+  sale         Boolean          @default(false)
+  availibility Availibility
+  description  Description?
+  Reviews      Reviews[]
+  tags         ProductsOnTags[]
+}
+
+enum Availibility {
+  IN_STORE
+  ONLINE
+}
+
+model Description {
+  id        Int     @id @default(autoincrement())
+  content   String
+  productId Int     @unique
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Reviews {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  rating    Int
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id        Int              @id @default(autoincrement())
+  content   String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  product   ProductsOnTags[]
+}
+
+model User {
+  id     Int     @id @default(autoincrement())
+  name   String
+  age    Int?
+  email  String? @unique
+  avatar String
+}
+
+model ProductsOnTags {
+  Product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  tagId      Int
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([productId, tagId])
+}
