@@ -35,7 +35,7 @@ export class ProductsController {
     @Param('id') id: string,
     @Body() updateProductDto: Prisma.ProductUpdateInput,
   ) {
-    return this.productsService.bUpdate(+id, updateProductDto);
+    return this.productsService.update(+id, updateProductDto);
   }
 
   @Delete(':id')

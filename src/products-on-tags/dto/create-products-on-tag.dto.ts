@@ -8,9 +8,13 @@ export class CreateProductsOnTagDto
   assignedBy: string;
 
   @IsNotEmpty()
-  Product: Prisma.ProductCreateNestedOneWithoutTagsInput;
+  productId: string;
 
   @IsNotEmpty()
+  tagId: string;
+
+  Product: Prisma.ProductCreateNestedOneWithoutTagsInput;
+
   tag: Prisma.TagCreateNestedOneWithoutProductInput;
 
   assignedAt?: string | Date;

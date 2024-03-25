@@ -9,26 +9,26 @@ export class ProductsOnTagsController {
 
   @Post()
   create(@Body() createProductsOnTagDto: CreateProductsOnTagDto) {
-    return this.productsOnTagsService.create(createProductsOnTagDto);
+    return this.productsOnTagsService.bCreate(createProductsOnTagDto);
   }
 
   @Get()
   findAll() {
-    return this.productsOnTagsService.findAll();
+    return this.productsOnTagsService.bFindAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsOnTagsService.findOne(+id);
+    return this.productsOnTagsService.bFindOneById(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductsOnTagDto: UpdateProductsOnTagDto) {
-    return this.productsOnTagsService.update(+id, updateProductsOnTagDto);
+    return this.productsOnTagsService.bUpdate(+id, updateProductsOnTagDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productsOnTagsService.remove(+id);
+    return this.productsOnTagsService.delete();
   }
 }

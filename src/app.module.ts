@@ -6,9 +6,10 @@ import { ProductsModule } from './products/products.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { TagsModule } from './tags/tags.module';
 import { ProductsOnTagsModule } from './products-on-tags/products-on-tags.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [DatabaseModule, ProductsModule, ReviewsModule, TagsModule, ProductsOnTagsModule],
+  imports: [DatabaseModule, ProductsModule, ReviewsModule, TagsModule, ProductsOnTagsModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })

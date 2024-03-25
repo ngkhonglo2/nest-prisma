@@ -1,26 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductsOnTagDto } from './dto/create-products-on-tag.dto';
-import { UpdateProductsOnTagDto } from './dto/update-products-on-tag.dto';
+import { CommonService } from 'src/core/service.base.abstract';
+import { Prisma, ProductsOnTags } from '@prisma/client';
+import { DatabaseService } from 'src/database/database.service';
+import { MODEL_NAME } from 'src/constant/modelName.constant';
 
 @Injectable()
-export class ProductsOnTagsService {
-  create(createProductsOnTagDto: CreateProductsOnTagDto) {
-    return 'This action adds a new productsOnTag';
+export class ProductsOnTagsService extends CommonService<
+  ProductsOnTags,
+  Prisma.ProductsOnTagsCreateInput,
+  Prisma.ProductsOnTagsUpdateInput,
+  any
+> {
+  constructor(private readonly databaseService: DatabaseService) {
+    super(databaseService, MODEL_NAME.PRODUCTS_ON_TAGS)
   }
-
-  findAll() {
-    return `This action returns all productsOnTags`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} productsOnTag`;
-  }
-
-  update(id: number, updateProductsOnTagDto: UpdateProductsOnTagDto) {
-    return `This action updates a #${id} productsOnTag`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} productsOnTag`;
+  async delete () {
+    return 
   }
 }

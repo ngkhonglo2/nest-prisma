@@ -16,13 +16,8 @@ model Product {
   sale         Boolean          @default(false)
   availibility Availibility
   description  Description?
-  Reviews      Reviews[]
   tags         ProductsOnTags[]
-}
-
-enum Availibility {
-  IN_STORE
-  ONLINE
+  Reviews      Reviews[]
 }
 
 model Description {
@@ -38,9 +33,11 @@ model Reviews {
   content   String
   rating    Int
   productId Int
-  product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@index([productId], name: "Reviews_productId_fkey")
 }
 
 model Tag {
@@ -56,16 +53,22 @@ model User {
   name   String
   age    Int?
   email  String? @unique
-  avatar String
+  avatar String?
 }
 
 model ProductsOnTags {
-  Product    Product  @relation(fields: [productId], references: [id])
   productId  Int
-  tag        Tag      @relation(fields: [tagId], references: [id])
   tagId      Int
   assignedAt DateTime @default(now())
   assignedBy String
+  Product    Product  @relation(fields: [productId], references: [id])
+  tag        Tag      @relation(fields: [tagId], references: [id])
 
   @@id([productId, tagId])
+  @@index([tagId], name: "ProductsOnTags_tagId_fkey")
+}
+
+enum Availibility {
+  IN_STORE
+  ONLINE
 }

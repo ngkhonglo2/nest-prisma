@@ -16,6 +16,27 @@ export class ProductsService extends CommonService<
     super(databaseService, MODEL_NAME.PRODUCT);
   }
 
+  async update(id: number, updateProductDto: Prisma.ProductUpdateInput) {
+    const productById = this.databaseService.product.findUnique({
+      where: {
+        id: id
+      },
+      include: {
+        description: { select: { id: true } },
+        Reviews: { select: { id: true } },
+        tags: true,
+      },
+    })
+
+    const res = this.databaseService.product.update({
+      where: {
+        id: id,
+      },
+      data: updateProductDto,
+    });
+    return res;
+  }
+  
   async findAll(query) {
     const newQuery = queryParse(query);
 
