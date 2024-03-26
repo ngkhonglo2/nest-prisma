@@ -22,4 +22,8 @@ export class CreateProductDto implements Prisma.ProductCreateInput {
   Reviews?: Prisma.ReviewsCreateNestedManyWithoutProductInput;
 
   tags?: Prisma.ProductsOnTagsCreateNestedManyWithoutProductInput;
+
+  tagsId?: number[];
+
+  userId: number;
 }

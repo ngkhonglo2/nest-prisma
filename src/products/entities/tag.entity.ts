@@ -1,8 +1,11 @@
-import { Tag } from '@prisma/client';
+import { Product, $Enums } from '@prisma/client';
 
-export class TagEntity implements Tag {
+export class ProductEntity implements Product {
   id: number;
-  content: string;
-  updatedAt: Date;
+  name: string;
   createdAt: Date;
+  updatedAt: Date;
+  price: number;
+  sale: boolean;
+  availibility: $Enums.Availibility;
 }
