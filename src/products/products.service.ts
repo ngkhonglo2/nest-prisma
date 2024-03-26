@@ -1,42 +1,81 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Product } from '@prisma/client';
+import { Product } from '@prisma/client';
 import { MODEL_NAME } from 'src/constant/modelName.constant';
 import { CommonService } from 'src/core/service.base.abstract';
 import { DatabaseService } from 'src/database/database.service';
 import { queryParse } from 'src/helpers/utils';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+const _ = require('lodash');
 
 @Injectable()
 export class ProductsService extends CommonService<
   Product,
-  Prisma.ProductCreateInput,
-  Prisma.ProductUpdateInput,
+  CreateProductDto,
+  UpdateProductDto,
   any
 > {
   constructor(private readonly databaseService: DatabaseService) {
     super(databaseService, MODEL_NAME.PRODUCT);
   }
 
-  async update(id: number, updateProductDto: Prisma.ProductUpdateInput) {
-    const productById = this.databaseService.product.findUnique({
-      where: {
-        id: id
-      },
-      include: {
-        description: { select: { id: true } },
-        Reviews: { select: { id: true } },
-        tags: true,
-      },
-    })
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const updateProduct = _.omit(updateProductDto, 'tagsId');
+
+    if (updateProductDto?.tagsId.length > 0) {
+      const existingTags = await this.databaseService.tag.findMany({
+        where: {
+          id: {
+            in: updateProductDto?.tagsId,
+          },
+        },
+      });
+
+      await this.databaseService.productsOnTags.deleteMany({
+        where: {
+          productId: id,
+        },
+      });
+
+      // xóa các object trong tags
+      await this.databaseService.product.update({
+        where: {
+          id: id,
+        },
+        data: {
+          tags: {
+            set: [],
+          },
+        },
+      });
+
+      // Thêm tags mới vào product vào model trung gian
+      await this.databaseService.productsOnTags.createMany({
+        data: existingTags.map((tag) => ({
+          productId: id,
+          tagId: tag.id,
+          assignedBy: 'admin',
+        })),
+      });
+
+      const res = this.databaseService.product.update({
+        where: {
+          id: id,
+        },
+        data: updateProduct,
+      });
+      return res;
+    }
 
     const res = this.databaseService.product.update({
       where: {
         id: id,
       },
-      data: updateProductDto,
+      data: updateProduct,
     });
     return res;
   }
-  
+
   async findAll(query) {
     const newQuery = queryParse(query);
 
