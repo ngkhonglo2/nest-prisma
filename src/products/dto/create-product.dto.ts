@@ -25,5 +25,5 @@ export class CreateProductDto implements Prisma.ProductCreateInput {
 
   tagsId?: number[];
 
-  userId: number;
+  userId?: number;
 }
