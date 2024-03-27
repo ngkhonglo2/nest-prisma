@@ -19,60 +19,35 @@ export class ProductsService extends CommonService<
     super(databaseService, MODEL_NAME.PRODUCT);
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    const updateProduct = _.omit(updateProductDto, 'tagsId');
+  async create(createProductDto: CreateProductDto) {
+    const createProduct = _.omit(createProductDto, 'tagsId', 'userId');
+    const res = await this.databaseService.product.create({
+      data: createProduct,
+    });
 
-    if (updateProductDto?.tagsId.length > 0) {
+    if (createProductDto.tagsId) {
+      const userAssignedBy = await this.databaseService.user.findUnique({
+        where: {
+          id: createProductDto.userId,
+        },
+      });
+
       const existingTags = await this.databaseService.tag.findMany({
         where: {
           id: {
-            in: updateProductDto?.tagsId,
+            in: createProductDto.tagsId,
           },
         },
       });
 
-      await this.databaseService.productsOnTags.deleteMany({
-        where: {
-          productId: id,
-        },
-      });
-
-      // xóa các object trong tags
-      await this.databaseService.product.update({
-        where: {
-          id: id,
-        },
-        data: {
-          tags: {
-            set: [],
-          },
-        },
-      });
-
-      // Thêm tags mới vào product vào model trung gian
       await this.databaseService.productsOnTags.createMany({
         data: existingTags.map((tag) => ({
-          productId: id,
+          productId: res.id,
           tagId: tag.id,
-          assignedBy: 'admin',
+          assignedBy: userAssignedBy.name,
         })),
       });
-
-      const res = this.databaseService.product.update({
-        where: {
-          id: id,
-        },
-        data: updateProduct,
-      });
-      return res;
     }
-
-    const res = this.databaseService.product.update({
-      where: {
-        id: id,
-      },
-      data: updateProduct,
-    });
     return res;
   }
 
@@ -109,5 +84,88 @@ export class ProductsService extends CommonService<
         tags: true,
       },
     });
+  }
+
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const updateProduct = _.omit(updateProductDto, 'tagsId', 'userId');
+
+    if (updateProductDto.tagsId) {
+      const existingTags = await this.databaseService.tag.findMany({
+        where: {
+          id: {
+            in: updateProductDto?.tagsId,
+          },
+        },
+      });
+
+      const userAssignedBy = await this.databaseService.user.findUnique({
+        where: {
+          id: updateProductDto.userId,
+        },
+      });
+
+      await this.databaseService.productsOnTags.deleteMany({
+        where: {
+          productId: id,
+        },
+      });
+
+      // xóa các object trong tags
+      await this.databaseService.product.update({
+        where: {
+          id: id,
+        },
+        data: {
+          tags: {
+            set: [],
+          },
+        },
+      });
+
+      // Thêm tags mới vào product vào model trung gian
+      await this.databaseService.productsOnTags.createMany({
+        data: existingTags.map((tag) => ({
+          productId: id,
+          tagId: tag.id,
+          assignedBy: userAssignedBy.name,
+        })),
+      });
+    }
+
+    const res = this.databaseService.product.update({
+      where: {
+        id: id,
+      },
+      data: updateProduct,
+    });
+    return res;
+  }
+
+  async delete(id: number) {
+    await this.databaseService.productsOnTags.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+
+    await this.databaseService.description.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+
+    await this.databaseService.reviews.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+
+    const res = await this.databaseService.product.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return res;
   }
 }
