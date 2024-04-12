@@ -72,3 +72,87 @@ enum Availibility {
   IN_STORE
   ONLINE
 }
+
+model Customers {
+  id                      Int       @id @default(autoincrement())
+  company_tax_code        Int? // mã số thuế
+  account_object_code     String // mã khách hàng
+  account_object_name     String // tên khách hàng
+  is_customer             Boolean //check có phải khách hàng hay ko
+  account_object_type     Int?
+  is_vendor               Boolean? //check có phải nhà cung cấp hay ko
+  is_local_object         Boolean? // check đối tượng nội bộ
+  is_employee             Boolean?
+  inactive                Boolean? // không hoạt động (true)
+  maximize_debt_amount    Int? // số ngày nợ tối đa
+  receiptable_debt_amount Int? // nợ tối đa
+  address                 String? // địa chỉ
+  auto_refno              Boolean?
+  closing_amount          Int?
+  tel                     String? // điện thoại
+  website                 String? // website
+  //thông tin liên hệ
+  prefix                  String? // xưng hô
+  contact_name            String? // tên người liên hệ
+  contact_email           String? // email người liên hệ
+  contact_mobile          String? // điện thoại di động
+  legal_representative    String? // đại diện theo PL
+  //người nhận hóa đơn điện tử
+  einvoice_contact_name   String? // tên người nhận
+  einvoice_contact_email  String? // email người nhận
+  einvoice_contact_mobile String? // số dt người nhận
+  //Thông tin CMND/Thẻ căn cước
+  identification_number   String? //Số CMND/Thẻ căn cước
+  issue_date              DateTime? // ngày tạo
+  issue_by                String? //nơi tạo
+  description             String? // ghi chú
+
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  //thiếu nhân viên, điều khoản thanh toán, hệ thống tài khoản, tk ngân hàng, chi nhánh
+  customerGroup CustomerOnCustomerGroup[]
+}
+
+model CustomerOnCustomerGroup {
+  customerId      Int
+  customerGroupId Int
+  created_at      DateTime                  @default(now())
+  created_by      String?
+  updated_at      DateTime                  @updatedAt
+  updated_by      String?
+  customer        Customers                 @relation(fields: [customerId], references: [id])
+  customerGroup   CustomerAndSupplierGroups @relation(fields: [customerGroupId], references: [id])
+
+  @@id([customerId, customerGroupId])
+}
+
+model CustomerAndSupplierGroups {
+  id                        Int      @id @default(autoincrement())
+  account_object_group_code String // code nhóm khách hàng, nhà cung cấp
+  account_object_group_name String // tên 
+  sort_order                Int?
+  inactive                  Boolean?
+  is_system                 Boolean?
+  reftype                   Int?
+  reftype_category          Int?
+  is_temp_data              Boolean?
+  excel_row_index           Int?
+  is_valid                  Boolean?
+  search_status             Int?
+  is_parent                 Boolean? // check xem có chứa thằng con nào ko
+  grade                     Int? // cấp con
+  auto_refno                Boolean?
+  edit_version              Int?
+  pass_edit_version         Boolean?
+  state                     Int?
+
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt
+  updated_by String?
+
+  customer CustomerOnCustomerGroup[]
+}
